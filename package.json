@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "customer resource management",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/piku/crm-backend.git"
+  },
+  "author": "sourav das",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/piku/crm-backend/issues"
+  },
+  "homepage": "https://gitlab.com/piku/crm-backend#readme",
+  "dependencies": {
+    "bcrypt": "^3.0.7",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "nodemailer": "^6.4.2",
+    "pg": "^7.15.1",
+    "sequelize": "^5.21.3"
+  }
+}
