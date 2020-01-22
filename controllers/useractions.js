@@ -5,6 +5,9 @@ const config = require('../config/config')
 const jsonchecker = require('../utilities/jsonchecker')
 const message = require('../utilities/errormessage')
 const jwt = require('jsonwebtoken')
+const defaultpermissions = require('../models/defaultpermissions')
+const permissionsarray = require('../utilities/fillpermissionsarray')
+
 
 
 
@@ -56,19 +59,36 @@ module.exports.verifyUserEmail = (req, res, next) => {
             console.log(err)
             res.status(400).json(message('Invalid token'))
         } else {
-            console.log(decoded.email)
-            db.users.update({
-                email_verified: true
-            }, {
-                where: { email: decoded.email }
-            }).then((result) => {
-                if (result == true) {
-                    res.status(200).json({ success: true, message: 'verified successfully.' })
+            db.users.findOne({ where: { email: decoded.email } }).then((user) => {
+                if (!user) {
+                    res.status(400).json(message('Record not found'))
                 } else {
-                    res.status(400).json({ success: true, message: 'record not found.' })
+                    if (user.email_verified == false) {
+                        try {
+                            const result = db.sequelize.transaction(async(t) => {
+                                const user = await db.users.update({
+                                    email_verified: true
+                                }, {
+                                    where: { email: decoded.email },
+                                    returning: true,
+                                    plain: true
+                                }, { transaction: t })
+
+                                await db.permissionstable.bulkCreate(permissionsarray.fillpermissions(defaultpermissions.permissions.normal_user, user[1].dataValues), { transaction: t })
+                                await res.status(200).json({ success: true, message: 'Successfully verified.' })
+                            })
+
+                        } catch (err) {
+                            next(err)
+
+                        }
+
+
+                    } else {
+                        res.status(200).json({ success: true, message: 'This record is already verified.' })
+
+                    }
                 }
-            }).catch((err) => {
-                next(err)
             })
         }
 

@@ -18,6 +18,7 @@ db.sequelize = sequelize
 db.Sequelize = Sequelize
 db.users = require('./user').users(sequelize, Sequelize)
 db.permissionstable = require('./permissiontable').permissions(sequelize, Sequelize)
+db.permissionstable.belongsTo(db.users, { foreignKey: 'user_id' })
 db.contactowners = require('./contactowners').contactowners(sequelize, Sequelize)
 db.contacts = require('./contacts').contacts(sequelize, Sequelize)
 db.contacts.belongsTo(db.contactowners, { foreignKey: 'owner' })
