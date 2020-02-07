@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const bodyparser = require('body-parser')
 const userrouter = require('./routes/userroutes')
+const contactsrouter = require('./routes/contactroutes')
 require('dotenv').config()
 
 
@@ -24,6 +25,7 @@ app.get('/api/test', (req, res) => {
 
 //routes
 app.use('/api/user', userrouter)
+app.use('/api/contacts', contactsrouter)
 
 
 

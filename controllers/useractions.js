@@ -102,7 +102,7 @@ module.exports.loginUser = (req, res, next) => {
         password: req.body.password
     }
     const err = jsonchecker(login_info)
-    if (err) res.json(message(err))
+    if (err) { res.json(message(err)); return }
 
     db.users.findOne({ where: { email: login_info.email } }).then((user) => {
         if (user) {
