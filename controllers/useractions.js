@@ -27,7 +27,7 @@ module.exports.createUser = (req, res, next) => {
             name: user_info.name,
             email: user_info.email,
             password: hash
-        }).then(() => {
+        }).then((user) => {
             console.log('new user created')
 
             let message = `Please click the link to verify your account ` + jwt.sign({
@@ -41,8 +41,8 @@ module.exports.createUser = (req, res, next) => {
                 text: message
             }
 
-            require('./mailcontroller').mailer(user_info.email, message)
-            res.json({ success: true, message: 'user created, verify email-id.' })
+            require('./mailcontroller').mailer(user_info.email, message).then(info => console.log(info)).catch(err => console.log(err))
+            res.json({ success: true, message: 'user created, verify email-id.', user_id: user.id })
         }).catch((err) => {
             if (err.constructor.name === 'UniqueConstraintError') {
                 res.json(message('Email id already present.'))
@@ -135,4 +135,42 @@ module.exports.loginUser = (req, res, next) => {
         }
 
     }).catch(err => next(err))
+}
+
+module.exports.resendEmail = (req, res, next) => {
+    const user_id = req.params.id
+    if (!user_id) {
+        res.status(400).json(message('provide userid.'))
+    }
+    (async() => {
+        try {
+            const user = await db.users.findOne({ where: { id: user_id } })
+            if (!user) {
+                res.status(401).json(message('user not found.'))
+            } else if (user.email_verified) {
+                res.status(200).json({ success: true, message: 'email is already verified.' })
+            } else {
+                let message = `Please click the link to verify your account ` + jwt.sign({
+                    name: user.name,
+                    email: user.email,
+                    created_at: Date.now()
+                }, config.jwtinfo.jwtkey)
+
+                message = {
+                    subject: 'Email Verification',
+                    text: message
+                }
+
+                let info = await require('./mailcontroller').mailer(user.email, message)
+                console.log(info)
+
+                await res.status(200).json({ success: true, message: 'mail sent' })
+
+            }
+
+        } catch (err) {
+            next(err)
+        }
+
+    })()
 }
