@@ -22,6 +22,13 @@ module.exports.permissions = {
             {
                 entity_name: 'subscription'
             }
+        ],
+        read: [{
+                entity_name: 'contacts',
+            },
+            {
+                entity_name: 'subscription'
+            }
         ]
     },
     premium_user: {

@@ -23,7 +23,7 @@ module.exports.verifyUserAndPermissions = (id, entity, action) => {
             if (!user) { resolve('user not found') } else {
                 db.permissionstable.findOne({ where: { user_id: id, entity: entity, action: action } }).then(permission => {
                     if (!permission) { throw new Error('permission not found.') } else {
-                        if (permission.max_allowed < 1) { resolve('crossed permissions quota') } else { resolve(null) }
+                        if (action == 'c' && permission.max_allowed < 1) { resolve('crossed permissions quota') } else { resolve(null) }
                     }
                 }).catch(err => { reject(err) })
             }

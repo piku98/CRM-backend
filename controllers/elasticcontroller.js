@@ -19,3 +19,50 @@ module.exports.create = (objects, index) => {
     })
     return promise
 }
+
+module.exports.simpleSearchIndex = (queryString, fields, index, from, size, filters) => {
+    const promise = new Promise((resolve, reject) => {
+        body = {
+            from: from,
+            size: size,
+            query: {
+                bool: {
+                    must: [{
+                        multi_match: {
+                            query: queryString,
+                            fields: fields
+
+                        }
+                    }],
+
+                }
+
+
+            }
+        }
+        if (filters) {
+            must = []
+            for (let i = 0; i < filters.length; i++) {
+                must.push({
+                    term: filters[i]
+                })
+            }
+            filter = {
+                bool: {
+                    must: must
+                }
+            }
+
+            body.query.bool.filter = filter
+        }
+        //console.log(JSON.stringify(body, null, 2))
+        client.search({
+            index: index,
+            body: body
+        }).then((response) => { resolve(response) }).catch(err => {
+            console.log('ELASTIC ERROR', err.meta.body.error.root_cause);
+            reject(err)
+        })
+    })
+    return promise
+}

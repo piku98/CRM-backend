@@ -32,6 +32,15 @@ module.exports.fillpermissions = (subscription, user) => {
         })
     }
 
+    //read
+    for (let i = 0; i < subscription.read.length; i++) {
+        permissions_array.push({
+            entity: subscription.read[i].entity_name,
+            action: 'r',
+            user_id: user.id
+        })
+    }
+
     return permissions_array
 
 }
